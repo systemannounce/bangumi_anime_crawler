@@ -122,7 +122,7 @@ class MainFunction(tk.Frame):
                     # f.write('\n')
                 # print(title)
             print(self.current)
-        self.current = self.current + 1
+            self.current = self.current + 1
 
 
 if __name__ == '__main__':
