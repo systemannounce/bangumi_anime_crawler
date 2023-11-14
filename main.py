@@ -37,6 +37,7 @@ class MainFunction(tk.Frame):
         self.respond = None
         self.exception = None
         self.count = 0
+        self.continued = False  # 跳过解析
 
         self.interrupt()  # 调用中断查询
         self.create_ui()
@@ -45,25 +46,32 @@ class MainFunction(tk.Frame):
     def log_message(self, message):
         self.logbox.config(state='normal')
         self.logbox.insert(tk.END, message + '\n')
+        self.logbox.see("end")      # 自动将滚动条滚动到末尾
         self.logbox.config(state='disabled')
 
     def timed_event(self):
-        self.log_message('Crawling page {}\n'.format(self.current))
+        self.log_message('Crawling page {}'.format(self.current))
         self.bangumi_requests()
         self.master.after(random.randint(1000, 15000), self.timed_event)
 
     def create_ui(self):
+        # 设置可更新的Label
         self.refresh = tk.StringVar()
         self.refresh.set('当前进度：N/A')
         self.label01 = tk.Label(self, textvariable=self.refresh, fg='white', bg='black',
                                 font=('微软雅黑', '20'))
         self.label01.pack(side='top')
-
-        self.logbox = tk.Text(self)
-        self.logbox.pack()
+        # 加入文本框滚动条
+        self.scrollbar = tk.Scrollbar(self)
+        self.scrollbar.pack(side="right", fill="y")
+        # 文本框设置
+        self.logbox = tk.Text(self, yscrollcommand=self.scrollbar.set)    # 绑定滚动条
+        self.logbox.pack(side="left")
+        self.scrollbar.config(command=self.logbox.yview)    # 设置滚动条属性，当滚动条被操作时，文本框内容也跟着移动
 
     def update(self):
         self.refresh.set('当前进度：{}'.format(self.current))
+        self.continued = False
 
     def interrupt(self):
         """中断查询函数，查询用户是否有过使用本程序"""
@@ -88,26 +96,32 @@ class MainFunction(tk.Frame):
         except:
             self.exception = True
             self.count = self.count + 1
-            rerr = 'request wrong , retrying...' + str(self.count) + 'time(s)'
+            rerr = 'Request wrong , retrying... ' + '\n' + str(self.count) + ' time(s)\n'
             self.log_message(rerr)
             if self.count >= 10:
                 self.exception = False
-                enderr = 'request ERROR in' + str(self.current) + 'page'
+                enderr = 'Request ERROR in page ' + str(self.current) + '\nIGNORE THIS PAGE\n'
                 self.log_message(enderr)
-                print(enderr)
-        if not self.exception:
-            self.count = 0
+                print(enderr + '\n')
+                if not messagebox.askyesno(title='请求错误', message='''
+请求错误超过十次，请问是否忽略第{}页的获取？\n点击否退出应用，重启可以中断继续(推荐)'''.format(self.current)):
+                    sys.exit()
+                self.continued = True   # 跳过下面解析
+                self.count = 0
+                self.current = self.current + 1
 
-            respond.encoding = respond.apparent_encoding
-            respon_text = respond.text
+        if not self.exception and not self.continued:
+            self.count = 0
             try:
+                respond.encoding = respond.apparent_encoding
+                respon_text = respond.text
                 tree = etree.HTML(respon_text)
                 title = tree.xpath('//ul[@id="browserItemList"]//a[@class="l"]/text()')
                 score = tree.xpath('//small[@class="fade"]/text()')
             except:
-                ler = 'lxml ERROR in' + str(self.current) + '\n'
+                ler = 'lxml ERROR in' + str(self.current)
                 self.log_message(ler)
-                print(ler)
+                print(ler + '\n')
             if len(title) == 0 and len(score) == 0:
                 finish = '爬取结束，一共爬取了' + str(self.current - 1) + '页'
                 messagebox.showinfo(title='结束', message=finish)
@@ -128,7 +142,7 @@ class MainFunction(tk.Frame):
 if __name__ == '__main__':
     respond = None
     root = tk.Tk()
-    root.geometry('300x500+100+200')
+    root.geometry('300x450+100+200')
     root.title('bangumi番剧爬取工具,MADE WITH LOVE')
     if not welcome():
         sys.exit()
