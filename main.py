@@ -38,6 +38,7 @@ class MainFunction(tk.Frame):
         self.exception = None
         self.count = 0
         self.continued = False  # 跳过解析
+        self.status = False
 
         self.interrupt()  # 调用中断查询
         self.create_ui()
@@ -50,7 +51,6 @@ class MainFunction(tk.Frame):
         self.logbox.config(state='disabled')
 
     def timed_event(self):
-        self.log_message('Crawling page {}'.format(self.current))
         self.bangumi_requests()
         self.master.after(random.randint(1000, 15000), self.timed_event)
 
@@ -61,6 +61,11 @@ class MainFunction(tk.Frame):
         self.label01 = tk.Label(self, textvariable=self.refresh, fg='white', bg='black',
                                 font=('微软雅黑', '20'))
         self.label01.pack(side='top')
+        # 加入暂停按钮
+        self.btn_stop_text = tk.StringVar()
+        self.btn_stop_text.set('Start')
+        self.btnstop = tk.Button(self, textvariable=self.btn_stop_text, command=self.pause_resume, font=('微软雅黑','15'))
+        self.btnstop.pack()
         # 加入文本框滚动条
         self.scrollbar = tk.Scrollbar(self)
         self.scrollbar.pack(side="right", fill="y")
@@ -69,9 +74,20 @@ class MainFunction(tk.Frame):
         self.logbox.pack(side="left")
         self.scrollbar.config(command=self.logbox.yview)    # 设置滚动条属性，当滚动条被操作时，文本框内容也跟着移动
 
-    def update(self):
-        self.refresh.set('当前进度：{}'.format(self.current))
-        self.continued = False
+    def pause_resume(self):
+        self.status = ~self.status
+        self.updated()
+        if self.status:
+            self.btn_stop_text.set('Pause')
+        else:
+            self.btn_stop_text.set('Resume')
+
+    def updated(self):
+        if self.status:
+            self.refresh.set('当前进度：{}'.format(self.current))
+            self.continued = False
+        else:
+            self.refresh.set('{}，暂停中'.format(self.current))
 
     def interrupt(self):
         """中断查询函数，查询用户是否有过使用本程序"""
@@ -85,64 +101,66 @@ class MainFunction(tk.Frame):
                 self.current = int(self.lines / 24 + 1)
 
     def bangumi_requests(self):
-        self.update()
-        self.param = {
-            "sort": "rank",
-            "page": self.current
-        }
-        self.exception = False
-        try:
-            respond = requests.get(url=self.url, headers=self.headers, params=self.param)
-        except:
-            self.exception = True
-            self.count = self.count + 1
-            rerr = 'Request wrong , retrying... ' + '\n' + str(self.count) + ' time(s)\n'
-            self.log_message(rerr)
-            if self.count >= 10:
-                self.exception = False
-                enderr = 'Request ERROR in page ' + str(self.current) + '\nIGNORE THIS PAGE\n'
-                self.log_message(enderr)
-                print(enderr + '\n')
-                if not messagebox.askyesno(title='请求错误', message='''
-请求错误超过十次，请问是否忽略第{}页的获取？\n点击否退出应用，重启可以中断继续(推荐)'''.format(self.current)):
-                    sys.exit()
-                self.continued = True   # 跳过下面解析
-                self.count = 0
-                self.current = self.current + 1
-
-        if not self.exception and not self.continued:
-            self.count = 0
+        self.updated()
+        if self.status:
+            self.log_message('Crawling page {}'.format(self.current))
+            self.param = {
+                "sort": "rank",
+                "page": self.current
+            }
+            self.exception = False
             try:
-                respond.encoding = respond.apparent_encoding
-                respon_text = respond.text
-                tree = etree.HTML(respon_text)
-                title = tree.xpath('//ul[@id="browserItemList"]//a[@class="l"]/text()')
-                score = tree.xpath('//small[@class="fade"]/text()')
+                respond = requests.get(url=self.url, headers=self.headers, params=self.param)
             except:
-                ler = 'lxml ERROR in' + str(self.current)
-                self.log_message(ler)
-                print(ler + '\n')
-            if len(title) == 0 and len(score) == 0:
-                finish = '爬取结束，一共爬取了' + str(self.current - 1) + '页'
-                messagebox.showinfo(title='结束', message=finish)
-                print(finish)
-                sys.exit()
-            with open('./anime.txt', 'a', encoding='utf-8') as f:
-                for num, ti in enumerate(title):
-                    # print(ti , '' , score[num])
-                    content = ti + '|' + score[num] + '\n'
+                self.exception = True
+                self.count = self.count + 1
+                rerr = 'Request wrong , retrying... ' + '\n' + str(self.count) + ' time(s)\n'
+                self.log_message(rerr)
+                if self.count >= 10:
+                    self.exception = False
+                    enderr = 'Request ERROR in page ' + str(self.current) + '\nIGNORE THIS PAGE\n'
+                    self.log_message(enderr)
+                    print(enderr + '\n')
+                    if not messagebox.askyesno(title='请求错误', message='''
+请求错误超过十次，请问是否忽略第{}页的获取？\n点击否退出应用，重启可以中断继续(推荐)'''.format(self.current)):
+                        sys.exit()
+                    self.continued = True   # 跳过下面解析
+                    self.count = 0
+                    self.current = self.current + 1
 
-                    f.write(content)
-                    # f.write('\n')
-                # print(title)
-            print(self.current)
-            self.current = self.current + 1
+            if not self.exception and not self.continued:
+                self.count = 0
+                try:
+                    respond.encoding = respond.apparent_encoding
+                    respon_text = respond.text
+                    tree = etree.HTML(respon_text)
+                    title = tree.xpath('//ul[@id="browserItemList"]//a[@class="l"]/text()')
+                    score = tree.xpath('//small[@class="fade"]/text()')
+                except:
+                    ler = 'lxml ERROR in' + str(self.current)
+                    self.log_message(ler)
+                    print(ler + '\n')
+                if len(title) == 0 and len(score) == 0:
+                    finish = '爬取结束，一共爬取了' + str(self.current - 1) + '页'
+                    messagebox.showinfo(title='结束', message=finish)
+                    print(finish)
+                    sys.exit()
+                with open('./anime.txt', 'a', encoding='utf-8') as f:
+                    for num, ti in enumerate(title):
+                        # print(ti , '' , score[num])
+                        content = ti + '|' + score[num] + '\n'
+
+                        f.write(content)
+                        # f.write('\n')
+                    # print(title)
+                print(self.current)
+                self.current = self.current + 1
 
 
 if __name__ == '__main__':
     respond = None
     root = tk.Tk()
-    root.geometry('300x450+100+200')
+    root.geometry('300x500+100+200')
     root.title('bangumi番剧爬取工具,MADE WITH LOVE')
     if not welcome():
         sys.exit()
