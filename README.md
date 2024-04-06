@@ -1,4 +1,7 @@
-# bangumi_crawling_anime
+# bangumi站动画排行爬取工具
+
+> 算是自己学Python的一点小作业吧。
+> 分享出来……
 
 这个程序是为了各位可以方便快速排出当前所有番剧在bangumi网站的排名而诞生的。
 
