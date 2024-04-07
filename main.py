@@ -1,5 +1,7 @@
 import os
 import sys
+import re
+import csv
 import requests
 from lxml import etree
 import random
@@ -9,7 +11,7 @@ from tkinter import messagebox
 
 def welcome():
     eula = messagebox.askyesno(title='EULA', message='''
-这个程序是为了各位可以方便快速排出当前所有番剧在bangumi网站的排名而诞生的。PS:最大页数999页
+这个程序是为了各位可以方便快速排出当前所有番剧在bangumi网站的排名而诞生的。
 如果你只需要知道某个番剧的排名和评分只需要自行去https://bangumi.tv自行查询
 请勿对本程序滥用！！！
 请确保自身网络可以正常访问bangumi.tv网站，否则会出错
@@ -39,6 +41,7 @@ class MainFunction(tk.Frame):
         self.count = 0
         self.continued = False  # 跳过解析
         self.status = False
+        self.addrow = False
 
         self.interrupt()  # 调用中断查询
         self.create_ui()
@@ -91,14 +94,19 @@ class MainFunction(tk.Frame):
 
     def interrupt(self):
         """中断查询函数，查询用户是否有过使用本程序"""
-        if os.path.isfile('./anime.txt'):
-            with open('./anime.txt', 'r', encoding='utf-8') as f:
-                self.lines = len(f.readlines())
+        if os.path.isfile('./anime.csv'):
+            with open('./anime.csv', 'r', encoding='utf-8', newline='') as f:
+                self.lines = len(f.readlines()) - 1
             self.answer = messagebox.askyesno(title='中断提醒',
                                               message='你上次在第{}行的时候中断，请问要从断点处继续吗？'.format(
                                                   self.lines))
             if self.answer:
                 self.current = int(self.lines / 24 + 1)
+            else:
+                os.remove('./anime.csv')
+                self.addrow = True
+        else:
+            self.addrow = True
 
     def bangumi_requests(self):
         self.updated()
@@ -136,21 +144,36 @@ class MainFunction(tk.Frame):
                     tree = etree.HTML(respon_text)
                     title = tree.xpath('//ul[@id="browserItemList"]//a[@class="l"]/text()')
                     score = tree.xpath('//small[@class="fade"]/text()')
+                    page_dates = tree.xpath('//*[@id="browserItemList"]/li/div/p[1]/text()')
+                    anime_dates_list = []    # 进入循环前先清空列表
+                    for one_dates in page_dates:
+                        anime_date = re.search(r'\d{4}年(\d{1,2}月\d{1,2}日)?|\d{4}-\d{1,2}-\d{1,2}', one_dates)
+                        if anime_date:
+                            anime_dates_list.append(anime_date.group())
+                        else:
+                            anime_dates_list.append('None')
                 except:
-                    ler = 'lxml ERROR in' + str(self.current)
+                    ler = 'lxml ERROR in' + str(self.current) + '\nExiting...'
                     self.log_message(ler)
                     print(ler + '\n')
+                    messagebox.showerror(title='Fatal Error', message='APP ERROR,\nExiting...\nPlease contact us')
+                    exit()
                 if len(title) == 0 and len(score) == 0:
                     finish = '爬取结束，一共爬取了' + str(self.current - 1) + '页'
                     messagebox.showinfo(title='结束', message=finish)
                     print(finish)
                     sys.exit()
-                with open('./anime.txt', 'a', encoding='utf-8') as f:
+                with open('./anime.csv', 'a', encoding='utf-8', newline='') as f:
+                    writer = csv.writer(f, delimiter='|')
+                    if self.addrow:
+                        writer.writerow(['anime', 'date', 'score'])
+                        self.addrow = False
                     for num, ti in enumerate(title):
                         # print(ti , '' , score[num])
-                        content = ti + '|' + score[num] + '\n'
+                        content = ti + '|' + anime_dates_list[num] + '|' + score[num] + '\n'
 
-                        f.write(content)
+                        # f.write(content)
+                        writer.writerow([ti,anime_dates_list[num],score[num]])
                         # f.write('\n')
                     # print(title)
                 print(self.current)
