@@ -93,9 +93,9 @@ class MainFunction(tk.Frame):
             self.refresh.set('{}，暂停中'.format(self.current))
 
     def interrupt(self):
-        """中断查询函数，查询用户是否有过使用本程序"""
-        if os.path.isfile('./anime.csv'):
-            with open('./anime.csv', 'r', encoding='utf-8', newline='') as f:
+        """中断查询函数，查询用户是否有过使用本程序，使用这么奇葩的名字是为了防止重名"""
+        if os.path.isfile('./systemannounce_anime.csv'):
+            with open('./systemannounce_anime.csv', 'r', encoding='utf-8', newline='') as f:
                 self.lines = len(f.readlines()) - 1
             self.answer = messagebox.askyesno(title='中断提醒',
                                               message='你上次在第{}行的时候中断，请问要从断点处继续吗？'.format(
@@ -103,7 +103,8 @@ class MainFunction(tk.Frame):
             if self.answer:
                 self.current = int(self.lines / 24 + 1)
             else:
-                os.remove('./anime.csv')
+                os.remove('./systemannounce_anime.csv')
+                os.remove('./systemannounce_anime.txt')    # 设计上两个文件相辅相成，同时进行操作.
                 self.addrow = True
         else:
             self.addrow = True
@@ -142,7 +143,7 @@ class MainFunction(tk.Frame):
                     respond.encoding = respond.apparent_encoding
                     respon_text = respond.text
                     tree = etree.HTML(respon_text)
-                    title = tree.xpath('//ul[@id="browserItemList"]//a[@class="l"]/text()')
+                    titles = tree.xpath('//ul[@id="browserItemList"]//a[@class="l"]/text()')
                     score = tree.xpath('//small[@class="fade"]/text()')
                     page_dates = tree.xpath('//*[@id="browserItemList"]/li/div/p[1]/text()')
                     anime_dates_list = []    # 进入循环前先清空列表
@@ -158,23 +159,25 @@ class MainFunction(tk.Frame):
                     print(ler + '\n')
                     messagebox.showerror(title='Fatal Error', message='APP ERROR,\nExiting...\nPlease contact us')
                     exit()
-                if len(title) == 0 and len(score) == 0:
+                if len(titles) == 0 and len(score) == 0:
                     finish = '爬取结束，一共爬取了' + str(self.current - 1) + '页'
                     messagebox.showinfo(title='结束', message=finish)
                     print(finish)
                     sys.exit()
-                with open('./anime.csv', 'a', encoding='utf-8', newline='') as f:
-                    writer = csv.writer(f, delimiter='|')
+                with (open('./systemannounce_anime.csv', 'a', encoding='utf-8', newline='') as f1,
+                      open('./systemannounce_anime.txt', 'a', encoding='utf-8') as f2):
+                    writer = csv.writer(f1)
                     if self.addrow:
                         writer.writerow(['anime', 'date', 'score'])
                         self.addrow = False
-                    for num, ti in enumerate(title):
+                    for num, ti in enumerate(titles):
                         # print(ti , '' , score[num])
                         content = ti + '|' + anime_dates_list[num] + '|' + score[num] + '\n'
-                        # f.write(content)
-                        writer.writerow([ti, anime_dates_list[num],score[num]])
+                        f2.write(content)
+                        title = re.sub(r'[,"]', ' ', ti)    # 为了适应GitHub的CSV文件标准
+                        writer.writerow([title, anime_dates_list[num], score[num]])
                         # f.write('\n')
-                    # print(title)
+                    # print(titles)
                 print(self.current)
                 self.current = self.current + 1
 
