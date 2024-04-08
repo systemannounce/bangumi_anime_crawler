@@ -43,8 +43,8 @@ class MainFunction(tk.Frame):
         self.status = False
         self.addrow = False
 
-        self.interrupt()  # 调用中断查询
         self.create_ui()
+        self.interrupt()  # 调用中断查询
         pass
 
     def log_message(self, message):
@@ -109,9 +109,9 @@ class MainFunction(tk.Frame):
             self.addrow = True
 
     def bangumi_requests(self):
-        self.updated()
         if self.status:
-            self.log_message('Crawling page {}'.format(self.current))
+            self.updated()
+            self.log_message('Crawling page {}...'.format(self.current))
             self.param = {
                 "sort": "rank",
                 "page": self.current
@@ -147,7 +147,7 @@ class MainFunction(tk.Frame):
                     page_dates = tree.xpath('//*[@id="browserItemList"]/li/div/p[1]/text()')
                     anime_dates_list = []    # 进入循环前先清空列表
                     for one_dates in page_dates:
-                        anime_date = re.search(r'\d{4}年(\d{1,2}月\d{1,2}日)?|\d{4}-\d{1,2}-\d{1,2}', one_dates)
+                        anime_date = re.search(r'\d{4}年(\d{1,2}月\d{1,2}日)?|\d{4}-\d{1,2}-\d{1,2}|\d{4}', one_dates)
                         if anime_date:
                             anime_dates_list.append(anime_date.group())
                         else:
@@ -171,9 +171,8 @@ class MainFunction(tk.Frame):
                     for num, ti in enumerate(title):
                         # print(ti , '' , score[num])
                         content = ti + '|' + anime_dates_list[num] + '|' + score[num] + '\n'
-
                         # f.write(content)
-                        writer.writerow([ti,anime_dates_list[num],score[num]])
+                        writer.writerow([ti, anime_dates_list[num],score[num]])
                         # f.write('\n')
                     # print(title)
                 print(self.current)
