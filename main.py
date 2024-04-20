@@ -62,12 +62,12 @@ class MainFunction(tk.Frame):
         self.refresh = tk.StringVar()
         self.refresh.set('当前进度：N/A')
         self.label01 = tk.Label(self, textvariable=self.refresh, fg='white', bg='black',
-                                font=('微软雅黑', '20'))
+                                font=('微软雅黑', 20))
         self.label01.pack(side='top')
         # 加入暂停按钮
         self.btn_stop_text = tk.StringVar()
         self.btn_stop_text.set('Start')
-        self.btnstop = tk.Button(self, textvariable=self.btn_stop_text, command=self.pause_resume, font=('微软雅黑','15'))
+        self.btnstop = tk.Button(self, textvariable=self.btn_stop_text, command=self.pause_resume, font=('微软雅黑',15))
         self.btnstop.pack()
         # 加入文本框滚动条
         self.scrollbar = tk.Scrollbar(self)
@@ -142,7 +142,7 @@ class MainFunction(tk.Frame):
                 try:
                     respond.encoding = respond.apparent_encoding
                     respon_text = respond.text
-                    tree = etree.HTML(respon_text)
+                    tree = etree.HTML(respon_text, etree.HTMLParser())
                     titles = tree.xpath('//ul[@id="browserItemList"]//a[@class="l"]/text()')
                     score = tree.xpath('//small[@class="fade"]/text()')
                     page_dates = tree.xpath('//*[@id="browserItemList"]/li/div/p[1]/text()')
