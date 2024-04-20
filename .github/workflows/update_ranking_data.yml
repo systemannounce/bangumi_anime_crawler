@@ -57,7 +57,7 @@ jobs:
         run: |
           git config --global user.email "55303494+systemannounce@users.noreply.github.com"
           git config --global user.name "Felix_SANA"
-          git add *
+          git add --all
           git commit -m "${{ steps.current_date.outputs.date }} Update DATA"
       - name: '提交代码🛫'
         uses: ad-m/github-push-action@master
