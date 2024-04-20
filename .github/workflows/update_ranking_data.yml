@@ -5,6 +5,10 @@ on:
       branches: actions
       paths:
         - '**.py'
+  pull_request:
+    branches: actions
+    paths:
+      - '**.py'
   # 进行手动控制
   workflow_dispatch:
   schedule:
