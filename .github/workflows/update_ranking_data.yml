@@ -3,6 +3,8 @@ name: Update Data🚀
 on:
   push:
       branches: actions
+      paths:
+        - '**.py'
   # 进行手动控制
   workflow_dispatch:
   schedule:
