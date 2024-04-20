@@ -50,7 +50,7 @@ class MainFunction():
                 t = threading.Thread(target=self.bangumi_requests, args=(page,))
                 threads.append(t)
                 t.start()
-            time.sleep(random.randint(1, 3))
+            time.sleep(random.randint(3, 8))
 
         for t in threads:
             t.join()
