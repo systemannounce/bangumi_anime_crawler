@@ -142,7 +142,7 @@ class MainFunction(tk.Frame):
                 try:
                     respond.encoding = respond.apparent_encoding
                     respon_text = respond.text
-                    tree = etree.HTML(respon_text)
+                    tree = etree.HTML(respon_text, etree.HTMLParser())
                     titles = tree.xpath('//ul[@id="browserItemList"]//a[@class="l"]/text()')
                     score = tree.xpath('//small[@class="fade"]/text()')
                     page_dates = tree.xpath('//*[@id="browserItemList"]/li/div/p[1]/text()')

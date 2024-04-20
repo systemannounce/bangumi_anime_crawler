@@ -1,0 +1,58 @@
+name: Update Data🚀
+
+on:
+  push:
+      branches: actions
+  # 进行手动控制
+  workflow_dispatch:
+  schedule:
+  # 每月一号运行
+    - cron: '0 0 1 * *'
+
+permissions:
+  contents: write
+
+env:
+  TZ: Asia/Shanghai
+
+jobs:
+  Update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: '下载源码🏗️'
+        uses: actions/checkout@v4
+        with:
+          ref: actions
+      - name: '设置Python环境🔄️'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: '安装依赖☑️'
+        run: |
+          python3 -m pip install --upgrade pip
+          pip3 install -r ./requirements.txt
+      - name: '删除以前的数据🔥'
+        run: |
+          rm -rf ??-??-??.csv
+          rm -rf ??-??-??.txt
+      - name: '运行程序💻'
+        run: python3 ./actions.py
+      - name: '获取当前日期🕘'
+        id: current_date
+        run: |
+          echo "date=$(date +"%Y-%m-%d")" >> $GITHUB_OUTPUT
+      - name: '修改文件名🛃'
+        run: |
+          mv systemannounce_anime.csv ${{ steps.current_date.outputs.date }}.csv
+          mv systemannounce_anime.txt ${{ steps.current_date.outputs.date }}.txt
+      - name: '提交data💾'
+        run: |
+          git config --global user.email "55303494+systemannounce@users.noreply.github.com"
+          git config --global user.name "Felix_SANA"
+          git add *
+          git commit -m "${{ steps.current_date.outputs.date }} Update DATA"
+      - name: '提交代码🛫'
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
