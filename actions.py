@@ -18,7 +18,6 @@ def welcome():
 请确保自身网络可以正常访问bangumi.tv网站，否则会出错
 爬取过程中，请不要对着程序乱按，卡住一小段时间为正常情况，否则容易崩溃。
 如果你继续操作将视为同意以上内容。''')
-    time.sleep(random.randint(5, 10))
 
 
 class MainFunction():
