@@ -5,14 +5,16 @@ on:
       branches: actions
       paths:
         - '**.py'
+        - '**update_ranking_data.yml'
   pull_request:
     branches: actions
     paths:
       - '**.py'
+      - '**update_ranking_data.yml'
   # 进行手动控制
   workflow_dispatch:
   schedule:
-  # 每月一号运行
+  # 每半个月运行一次
     - cron: '0 0 1,16 * *'
 
 permissions:
