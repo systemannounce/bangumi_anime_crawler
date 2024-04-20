@@ -41,14 +41,14 @@ jobs:
           pip3 install -r ./requirements.txt
       - name: '删除以前的数据🔥'
         run: |
-          rm -rf ??-??-??.csv
-          rm -rf ??-??-??.txt
+          rm -rf *-*-*.csv
+          rm -rf *-*-*.txt
       - name: '运行程序💻'
         run: python3 ./actions.py
       - name: '获取当前日期🕘'
         id: current_date
         run: |
-          echo "date=$(date +"%Y-%m-%d")" >> $GITHUB_OUTPUT
+          echo "date=$(date +"%Y-%m-%d %H:%M:%S")" >> $GITHUB_OUTPUT
       - name: '修改文件名🛃'
         run: |
           mv systemannounce_anime.csv ${{ steps.current_date.outputs.date }}.csv
