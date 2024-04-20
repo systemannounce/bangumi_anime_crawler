@@ -48,7 +48,7 @@ jobs:
       - name: '获取当前日期🕘'
         id: current_date
         run: |
-          echo "date=$(date +"%Y-%m-%d %H:%M:%S")" >> $GITHUB_OUTPUT
+          echo "date=$(date +"%Y-%m-%d")" >> $GITHUB_OUTPUT
       - name: '修改文件名🛃'
         run: |
           mv systemannounce_anime.csv ${{ steps.current_date.outputs.date }}.csv
