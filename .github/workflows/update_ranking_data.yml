@@ -41,18 +41,22 @@ jobs:
           pip3 install -r ./requirements.txt
       - name: '删除以前的数据🔥'
         run: |
-          rm -rf *-*-*.csv
-          rm -rf *-*-*.txt
+          rm -rf systemannounce_anime.csv
+          rm -rf systemannounce_anime.txt
+          rm -rf *-*-*.*    # 适配老版本，自动删除老文件
       - name: '运行程序💻'
         run: python3 ./actions.py
       - name: '获取当前日期🕘'
         id: current_date
         run: |
-          echo "date=$(date +"%Y-%m-%d")" >> $GITHUB_OUTPUT
-      - name: '修改文件名🛃'
-        run: |
-          mv systemannounce_anime.csv ${{ steps.current_date.outputs.date }}.csv
-          mv systemannounce_anime.txt ${{ steps.current_date.outputs.date }}.txt
+          echo "date=$(date +"%Y-%m-%d %H:%M:%S")" >> $GITHUB_OUTPUT    # 新版本加上精确时间
+          
+        # 新版本弃用步骤
+      # - name: '修改文件名🛃'
+      #   run: |
+      #     mv systemannounce_anime.csv ${{ steps.current_date.outputs.date }}.csv
+      #     mv systemannounce_anime.txt ${{ steps.current_date.outputs.date }}.txt
+      
       - name: '提交data💾'
         run: |
           git config --global user.email "55303494+systemannounce@users.noreply.github.com"
