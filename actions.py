@@ -46,11 +46,15 @@ class MainFunction():
         # 创建并启动多个线程
         threads = []
         for page_gather in range(1, int(self.read_page())):  # 此处更改爬取页数，因为是异步所以难做自动停止。
+            if not self.status:
+                break
             for page in range(10 * (page_gather - 1) + 1, 10 * page_gather + 1):
+                if not self.status:
+                    break
                 t = threading.Thread(target=self.bangumi_requests, args=(page,))
                 threads.append(t)
                 t.start()
-            time.sleep(random.randint(3, 8))
+            time.sleep(random.randint(2, 7))
 
         for t in threads:
             t.join()
@@ -146,8 +150,9 @@ class MainFunction():
                     raise Exception('lxml err')
                     exit()
                 if len(titles) == 0 and len(score) == 0:
-                    finish = '爬取结束，一共爬取了' + str(line_num - 1) + '页'
+                    finish = '爬取结束，当前正在第' + str(line_num - 1) + '页'
                     print(finish)
+                    self.status = False
                     sys.exit()
 
                 with (open('./systemannounce_anime.csv', 'a', encoding='utf-8', newline='') as f1,
