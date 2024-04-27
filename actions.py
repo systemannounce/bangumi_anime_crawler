@@ -138,7 +138,7 @@ class MainFunction():
                     page_dates = tree.xpath('//*[@id="browserItemList"]/li/div/p[1]/text()')
                     anime_dates_list = []  # 进入循环前先清空列表
                     for one_dates in page_dates:
-                        anime_date = re.search(r'\d{4}年(\d{1,2}月\d{1,2}日)?|\d{4}-\d{1,2}-\d{1,2}|\d{4}', one_dates)
+                        anime_date = re.search(r'\d{4}年(\d{1,2}月\d{1,2}日)?|\d{4}-\d{1,2}-\d{1,2}|\d{4}(?!话)', one_dates)
                         if anime_date:
                             anime_dates_list.append(anime_date.group())
                         else:
