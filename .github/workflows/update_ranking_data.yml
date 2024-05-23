@@ -10,7 +10,6 @@ on:
         - '**update_ranking_data.yml'
   pull_request:
     branches: 
-      - actions
       - main
     paths:
       - '**.py'
@@ -68,7 +67,13 @@ jobs:
           git add --all
           git commit -m "${{ steps.current_date.outputs.date }} Update DATA"
       - name: '提交代码🛫'
+        if: ${{github.event_name != 'pull_request'}}
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ github.ref }}
+      - name: 上传Artifact💼
+        uses: actions/upload-artifact@v4
+        with:
+          name: data
+          path: ./systemannounce_anime.*
