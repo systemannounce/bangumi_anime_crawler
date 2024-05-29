@@ -61,13 +61,14 @@ jobs:
       #     mv systemannounce_anime.txt ${{ steps.current_date.outputs.date }}.txt
       
       - name: '提交data💾'
+        if: ${{github.event_name != 'pull_request' && github.event_name != 'push'}}
         run: |
           git config --global user.email "55303494+systemannounce@users.noreply.github.com"
           git config --global user.name "Felix_SANA"
           git add --all
           git commit -m "${{ steps.current_date.outputs.date }} Update DATA"
       - name: '提交代码🛫'
-        if: ${{github.event_name != 'pull_request'}}
+        if: ${{github.event_name != 'pull_request' && github.event_name != 'push'}}
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
