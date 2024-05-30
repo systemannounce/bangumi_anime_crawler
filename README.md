@@ -33,9 +33,14 @@
 爬取过程中，请不要对着程序乱按，卡住一小段时间为正常情况，否则容易崩溃。
 
 ## 项目截图
-![image](https://github.com/systemannounce/bangumi_crawling_anime/assets/55303494/1adb9fd8-515b-4390-8c7c-6dfacbb47452)  
+![image](https://github.com/systemannounce/bangumi_crawling_anime/assets/55303494/1adb9fd8-515b-4390-8c7c-6dfacbb47452) [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fsystemannounce%2Fbangumi_anime_crawler.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fsystemannounce%2Fbangumi_anime_crawler?ref=badge_shield)
+ 
 ![image](https://github.com/systemannounce/bangumi_crawer_anime/assets/55303494/9e50097b-2017-4244-a659-3358810076ac)
 
 
 > 如果侵犯到了您的权利/权益请联系我删除。[邮箱](mailto:copyright@systemannounce.com)
 
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fsystemannounce%2Fbangumi_anime_crawler.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fsystemannounce%2Fbangumi_anime_crawler?ref=badge_large)
