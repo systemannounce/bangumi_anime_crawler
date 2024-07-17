@@ -4,7 +4,7 @@
 > 分享出来……
 ## 目前项目已经使用Actions进行定期更新仓库内排行  
 **如果你下载仅仅只是为了看到整体番剧的排行，没必要那么麻烦。**  
-**我已经在仓库里面放了定期更新的数据源，找到  [systemannounce_anime.csv](https://github.com/systemannounce/bangumi_anime_crawler/blob/actions/systemannounce_anime.csv)  名字的文件即可查看最近更新的数据。**  
+**我已经在仓库里面放了定期更新的数据源，找到  [systemannounce_anime.csv](https://github.com/systemannounce/bangumi_anime_crawler/blob/main/systemannounce_anime.csv)  名字的文件即可查看最近更新的数据。**  
 
 <details>
 <summary>关于CSV文件检索的简单使用方法（我猜你不需要）</summary>
